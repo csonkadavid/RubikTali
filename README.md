@@ -1,0 +1,2 @@
+# RubikTali
+Találkozó szervező kockásoknak
