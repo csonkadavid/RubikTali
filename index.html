@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>RubicTali – találj társat Rubik-kockázáshoz</title>
+<style>
+:root{
+  --bg:#0f1220; --panel:#171a2b; --panel2:#20243a; --text:#f6f7fb; --muted:#aeb5cc;
+  --accent:#7c5cff; --accent2:#2dd4bf; --warning:#f59e0b; --border:#313651; --ok:#22c55e;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:linear-gradient(180deg,#0d1020,#14172a);color:var(--text)}
+a{color:inherit}
+.shell{max-width:1200px;margin:auto;padding:24px}
+nav{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:24px}
+.brand{display:flex;align-items:center;gap:12px;font-weight:800;font-size:20px}
+.cube{width:36px;height:36px;border-radius:9px;background:conic-gradient(from 45deg,#ef4444,#f59e0b,#eab308,#22c55e,#3b82f6,#8b5cf6,#ef4444);box-shadow:0 0 0 3px #fff1 inset}
+.nav-actions{display:flex;gap:10px}
+button,.btn{border:0;border-radius:12px;padding:11px 15px;font-weight:700;cursor:pointer}
+.btn-primary{background:var(--accent);color:#fff}
+.btn-ghost{background:transparent;color:var(--text);border:1px solid var(--border)}
+.hero{display:grid;grid-template-columns:1.15fr .85fr;gap:24px;align-items:stretch}
+.hero-card,.search-card,.profile-card,.feature,.panel{background:rgba(23,26,43,.94);border:1px solid var(--border);border-radius:20px}
+.hero-card{padding:38px}
+.eyebrow{display:inline-flex;gap:8px;align-items:center;padding:7px 11px;border-radius:999px;background:#20243a;color:#d6dbef;font-size:13px;margin-bottom:14px}
+h1{font-size:52px;line-height:1.02;margin:0 0 16px;letter-spacing:-1.8px}
+.hero p{color:var(--muted);font-size:18px;line-height:1.6}
+.hero-buttons{display:flex;gap:12px;flex-wrap:wrap;margin-top:24px}
+.hero-side{padding:26px;display:flex;flex-direction:column;gap:14px;justify-content:center}
+.mini{background:#20243a;border:1px solid var(--border);border-radius:16px;padding:16px}
+.mini strong{display:block;margin-bottom:6px}
+.mini span{color:var(--muted);font-size:14px}
+.section-title{display:flex;align-items:end;justify-content:space-between;gap:16px;margin:40px 0 16px}
+.section-title h2{margin:0;font-size:28px}
+.section-title p{margin:0;color:var(--muted)}
+.search-card{padding:18px}
+.filters{display:grid;grid-template-columns:1.35fr .9fr .9fr .9fr 1fr 1fr auto;gap:10px}
+label{font-size:12px;color:var(--muted);display:block;margin:0 0 6px}
+input,select,textarea{width:100%;background:#101426;color:var(--text);border:1px solid var(--border);border-radius:11px;padding:11px}
+.results-meta{display:flex;justify-content:space-between;color:var(--muted);font-size:14px;margin:14px 2px}
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.profile-card{padding:18px}
+.toprow{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+.avatar{width:48px;height:48px;border-radius:14px;background:linear-gradient(145deg,#7c5cff,#2dd4bf);display:grid;place-items:center;font-weight:900}
+.name{font-weight:800;font-size:18px}
+.loc{color:var(--muted);font-size:13px;margin-top:4px}
+.badges{display:flex;flex-wrap:wrap;gap:7px;margin:14px 0}
+.badge{font-size:12px;padding:6px 8px;border-radius:999px;background:#20243a;border:1px solid var(--border)}
+.availability{font-size:12px;padding:6px 9px;border-radius:999px;font-weight:800;border:1px solid var(--border)}
+.av-now{background:#173b2b;color:#c8f8dc;border-color:#2c6a4d}
+.av-today{background:#2f2a16;color:#ffe8a3;border-color:#685b25}
+.av-week{background:#202a46;color:#d8e2ff;border-color:#3c4d80}
+.av-flex{background:#2a223c;color:#e8d8ff;border-color:#57427b}
+.non-dating{margin-top:14px;padding:12px 14px;border-radius:14px;background:#101426;border:1px solid var(--border);color:#cbd1e4;font-size:13px;line-height:1.45}
+.statgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:14px 0}
+.stat{background:#101426;border-radius:12px;padding:10px}
+.stat b{display:block;font-size:16px}
+.stat span{color:var(--muted);font-size:11px}
+.bio{color:#c5cadb;line-height:1.5;min-height:68px}
+.card-actions{display:flex;gap:8px;margin-top:14px}
+.card-actions button{flex:1}
+.features{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin:40px 0}
+.feature{padding:22px}
+.feature h3{margin:8px 0}
+.feature p{color:var(--muted);line-height:1.5}
+footer{color:#858da9;text-align:center;padding:30px 0 10px}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;place-items:center;padding:20px}
+.modal.open{display:grid}
+.modalbox{width:min(680px,100%);background:#171a2b;border:1px solid var(--border);border-radius:20px;padding:22px;max-height:90vh;overflow:auto}
+.modalhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+.modalhead h3{margin:0}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.notice{margin-top:12px;padding:12px;border-radius:12px;background:#12261f;color:#c9f7df;border:1px solid #245b47;display:none}
+@media(max-width:950px){.hero{grid-template-columns:1fr}.filters{grid-template-columns:1fr 1fr 1fr}.cards{grid-template-columns:1fr 1fr}h1{font-size:42px}}
+@media(max-width:650px){.shell{padding:14px}.filters,.cards,.features,.grid2{grid-template-columns:1fr}h1{font-size:36px}.hero-card{padding:24px}.nav-actions .btn-ghost{display:none}}
+
+.map-wrap{position:relative;margin:18px 0 0}
+.map-panel{background:rgba(23,26,43,.94);border:1px solid var(--border);border-radius:20px;overflow:hidden}
+.map-head{display:flex;justify-content:space-between;gap:16px;align-items:center;padding:16px 18px;border-bottom:1px solid var(--border)}
+.map-head strong{font-size:17px}
+.map-note{color:var(--muted);font-size:12px;line-height:1.4;text-align:right;max-width:520px}
+#peopleMap{height:430px;width:100%;background:#101426}
+.map-legend{display:flex;gap:8px;flex-wrap:wrap;padding:12px 16px;border-top:1px solid var(--border);font-size:12px;color:var(--muted)}
+.legend-dot{width:9px;height:9px;border-radius:50%;display:inline-block;margin-right:5px}
+.leaflet-container{font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+.leaflet-popup-content-wrapper,.leaflet-popup-tip{background:#171a2b;color:#f6f7fb}
+.leaflet-popup-content{margin:12px 14px;line-height:1.45}
+.map-popup-name{font-weight:800;font-size:15px;margin-bottom:4px}
+.map-popup-meta{font-size:12px;color:#c9cee0}
+.person-marker{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;color:white;font-weight:800;border:3px solid white;box-shadow:0 3px 12px #0007}
+.person-marker.beginner{background:#22c55e}
+.person-marker.intermediate{background:#3b82f6}
+.person-marker.advanced{background:#f59e0b}
+.person-marker.competitor{background:#ef4444}
+.map-empty{padding:18px;color:var(--muted)}
+@media(max-width:650px){#peopleMap{height:340px}.map-head{align-items:flex-start;flex-direction:column}.map-note{text-align:left}}
+
+</style>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+ integrity="sha256-p4NxAoJBhIINfQ3yn5tkYkJEZ3n2dI/Gh4RWuZB0iUQ=" crossorigin="" />
+</head>
+<body>
+<div class="shell">
+  <nav>
+    <div class="brand"><div class="cube"></div>RubicTali</div>
+    <div class="nav-actions">
+      <button class="btn-ghost" onclick="document.querySelector('#kereses').scrollIntoView({behavior:'smooth'})">Keresés</button>
+      <button class="btn-primary" onclick="openJoin()">Hobbitárs-profil létrehozása</button>
+    </div>
+  </nav>
+
+  <section class="hero">
+    <div class="hero-card">
+      <div class="eyebrow">🧩 Hobbitárs-kereső Rubik-kockázáshoz · nem társkereső</div>
+      <h1>Találj hobbitársat Rubik-kockázáshoz a közeledben.</h1>
+      <p>A RubicTali nem társkereső oldal, hanem hobbitárs-kereső Rubik-kockázáshoz. Keress 1–3 embert, akikkel lehet gyakorolni, időt mérni, algoritmusokat tanulni vagy egyszerűen csak együtt kockázni.</p>
+      <div class="hero-buttons">
+        <button class="btn-primary" onclick="document.querySelector('#kereses').scrollIntoView({behavior:'smooth'})">Hobbitársat keresek</button>
+        <button class="btn-ghost" onclick="openJoin()">Felkerülök a listára</button>
+      </div>
+      <div class="non-dating"><strong>Fontos:</strong> a RubicTali célja kizárólag közös Rubik-kockázás, gyakorlás és tanulás. Nem romantikus vagy párkapcsolati társkereső.</div>
+    </div>
+    <div class="hero-side panel">
+      <div class="mini"><strong>🎯 Szint alapján</strong><span>Kezdő, középhaladó, haladó, versenyző.</span></div>
+      <div class="mini"><strong>⏱️ Idő alapján</strong><span>Add meg a tipikus 3×3 átlagidődet.</span></div>
+      <div class="mini"><strong>🧠 Módszer alapján</strong><span>Beginner, CFOP, Roux, ZZ vagy egyéb.</span></div>
+      <div class="mini"><strong>📍 Hely alapján</strong><span>Város vagy kerület szerinti egyszerű keresés.</span></div>
+    </div>
+  </section>
+
+  <div class="section-title" id="kereses">
+    <div><h2>RubicTali kereső</h2><p>Keress közös gyakorláshoz, tanuláshoz vagy kockázós találkozóhoz.</p></div>
+  </div>
+
+  <section class="search-card">
+    <div class="filters">
+      <div><label>Hely</label><input id="fLocation" placeholder="pl. Budapest, Érd..." oninput="render()"></div>
+      <div><label>Szint</label><select id="fLevel" onchange="render()"><option value="">Mind</option><option>Kezdő</option><option>Középhaladó</option><option>Haladó</option><option>Versenyző</option></select></div>
+      <div><label>Módszer</label><select id="fMethod" onchange="render()"><option value="">Mind</option><option>Beginner</option><option>CFOP</option><option>Roux</option><option>ZZ</option></select></div>
+      <div><label>Max. átlagidő</label><select id="fTime" onchange="render()"><option value="">Mind</option><option value="30">30 mp</option><option value="45">45 mp</option><option value="60">1 perc</option><option value="120">2 perc</option></select></div>
+      <div><label>Mikor ér rá?</label><select id="fAvailability" onchange="render()"><option value="">Mind</option><option>Most találkozna</option><option>Ma ráér</option><option>Ezen a héten</option><option>Rugalmas</option></select></div>
+      <div><label>Találkozás</label><select id="fMeet" onchange="render()"><option value="">Mind</option><option>Kávézó</option><option>Park</option><option>Otthon</option><option>Online</option></select></div>
+      <div style="display:flex;align-items:end"><button class="btn-ghost" onclick="resetFilters()">Törlés</button></div>
+    </div>
+  </section>
+
+  <section class="map-wrap">
+    <div class="map-panel">
+      <div class="map-head">
+        <strong>🗺️ Hol vannak a RubicTali-tagok?</strong>
+        <div class="map-note">A térkép szándékosan csak hozzávetőleges város/kerület szintű helyet mutat, nem pontos élő GPS-pozíciót.</div>
+      </div>
+      <div id="peopleMap" aria-label="RubicTali tagok hozzávetőleges térképe"></div>
+      <div class="map-legend">
+        <span><i class="legend-dot" style="background:#22c55e"></i>Kezdő</span>
+        <span><i class="legend-dot" style="background:#3b82f6"></i>Középhaladó</span>
+        <span><i class="legend-dot" style="background:#f59e0b"></i>Haladó</span>
+        <span><i class="legend-dot" style="background:#ef4444"></i>Versenyző</span>
+      </div>
+    </div>
+  </section>
+
+  <div class="results-meta"><span id="resultCount"></span><span>Demó profilok</span></div>
+  <div class="cards" id="cards"></div>
+
+  <section class="features">
+    <div class="feature"><div>🤝</div><h3>Kis találkozók</h3><p>A cél nem randi és nem tömeges esemény, hanem könnyen megszervezhető 2–4 fős kockázás.</p></div>
+    <div class="feature"><div>📈</div><h3>Egymástól tanulás</h3><p>Megadhatod, mit tudsz tanítani és miben szeretnél fejlődni.</p></div>
+    <div class="feature"><div>🛡️</div><h3>Biztonságos első találkozó</h3><p>Első alkalomra nyilvános hely javasolt. A pontos címet ne tedd nyilvánossá.</p></div>
+  </section>
+
+  <footer>RubicTali – hobbitárs-kereső • Rubik-kockázás, közös gyakorlás, tanulás • nem társkereső</footer>
+</div>
+
+<div class="modal" id="joinModal">
+  <div class="modalbox">
+    <div class="modalhead"><h3>Hobbitárs-profil létrehozása</h3><button class="btn-ghost" onclick="closeJoin()">Bezárás</button></div>
+    <div class="grid2">
+      <div><label>Név / becenév</label><input id="jName" placeholder="pl. Dani"></div>
+      <div><label>Város / kerület</label><input id="jLocation" placeholder="pl. Budapest XI."><div style="font-size:11px;color:var(--muted);margin-top:5px">Ne adj meg pontos lakcímet.</div></div>
+      <div><label>Szint</label><select id="jLevel"><option>Kezdő</option><option>Középhaladó</option><option>Haladó</option><option>Versenyző</option></select></div>
+      <div><label>3×3 átlagidő (mp)</label><input id="jTime" type="number" min="5" placeholder="pl. 48"></div>
+      <div><label>Módszer</label><select id="jMethod"><option>Beginner</option><option>CFOP</option><option>Roux</option><option>ZZ</option><option>Egyéb</option></select></div>
+      <div><label>Mikor keres hobbitársat?</label><select id="jAvailability"><option>Most találkozna</option><option>Ma ráér</option><option>Ezen a héten</option><option selected>Rugalmas</option></select></div>
+      <div><label>Találkozás</label><select id="jMeet"><option>Kávézó</option><option>Park</option><option>Otthon</option><option>Online</option></select></div>
+    </div>
+    <div style="margin-top:12px"><label>Milyen közös kockázást keresel?</label><textarea id="jBio" rows="4" placeholder="Pl. szeretnék CFOP F2L-t gyakorolni, időt mérni vagy szívesen segítek kezdőknek..."></textarea></div>
+    <div style="margin-top:12px"><button class="btn-primary" onclick="addProfile()">Profil mentése</button></div>
+    <div id="notice" class="notice">A profil bekerült ebbe a böngészőbe. Ez a demó helyi tárolást használ.</div>
+  </div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+ integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<script>
+const initialProfiles = [
+ {name:"Bence",location:"Budapest XI.",level:"Középhaladó",time:42,method:"CFOP",meet:"Kávézó",availability:"Ma ráér",goal:"F2L-t és 2-look OLL-t gyakorolnék. Kezdőknek szívesen segítek alapokat stabilizálni.",lat:47.4742,lng:19.0367},
+ {name:"Nóri",location:"Érd",level:"Kezdő",time:95,method:"Beginner",meet:"Park",availability:"Ezen a héten",goal:"Most tanulom a gyorsabb kirakást. Jó lenne valakivel együtt gyakorolni hetente egyszer.",lat:47.3919,lng:18.9045},
+ {name:"Marci",location:"Budapest XIII.",level:"Haladó",time:21,method:"CFOP",meet:"Kávézó",availability:"Most találkozna",goal:"PLL drill, lookahead és verseny előtti gyakorlás érdekel. Szívesen adok tippeket sub-30 célhoz.",lat:47.5359,lng:19.0710},
+ {name:"Ádám",location:"Budaörs",level:"Középhaladó",time:37,method:"Roux",meet:"Park",availability:"Rugalmas",goal:"Roux gyakorlópartnert keresek, de CFOP-osokkal is szívesen kockázom.",lat:47.4618,lng:18.9585},
+ {name:"Lili",location:"Budapest III.",level:"Versenyző",time:14,method:"CFOP",meet:"Kávézó",availability:"Ma ráér",goal:"Speedsolve, TPS és inspection gyakorlás. Főleg haladó társakat keresek.",lat:47.5701,lng:19.0461},
+ {name:"Zsolt",location:"Százhalombatta",level:"Kezdő",time:120,method:"Beginner",meet:"Online",availability:"Ezen a héten",goal:"Szeretném megérteni, hogyan lehet kevesebb megállással kirakni a kockát.",lat:47.3292,lng:18.9386}
+];
+const storedProfiles = JSON.parse(localStorage.getItem('rubictali_profiles') || localStorage.getItem('kockatars_profiles') || '[]');
+let profiles = [...initialProfiles, ...storedProfiles];
+
+const knownAreas = [
+  {match:/budapest\s*xi\.?/i,lat:47.4742,lng:19.0367},
+  {match:/budapest\s*xiii\.?/i,lat:47.5359,lng:19.0710},
+  {match:/budapest\s*iii\.?/i,lat:47.5701,lng:19.0461},
+  {match:/érd/i,lat:47.3919,lng:18.9045},
+  {match:/budaörs/i,lat:47.4618,lng:18.9585},
+  {match:/százhalombatta/i,lat:47.3292,lng:18.9386},
+  {match:/budapest/i,lat:47.4979,lng:19.0402}
+];
+
+function approximateCoords(location,name){
+  const area=knownAreas.find(a=>a.match.test(location||''));
+  if(!area) return null;
+  let hash=0;
+  for(const ch of String(name||'')) hash=(hash*31+ch.charCodeAt(0))>>>0;
+  const dx=((hash%9)-4)*0.0013, dy=(((hash>>4)%9)-4)*0.0011;
+  return {lat:area.lat+dy,lng:area.lng+dx};
+}
+
+let peopleMap=null;
+let mapMarkers=[];
+
+function levelClass(level){
+  return level==='Kezdő'?'beginner':level==='Középhaladó'?'intermediate':level==='Haladó'?'advanced':'competitor';
+}
+function ensureMap(){
+  if(peopleMap || !window.L) return;
+  peopleMap=L.map('peopleMap',{scrollWheelZoom:false}).setView([47.45,19.0],10);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
+    maxZoom:18,
+    attribution:'&copy; OpenStreetMap közreműködők'
+  }).addTo(peopleMap);
+}
+function renderMap(list){
+  ensureMap();
+  if(!peopleMap) return;
+  mapMarkers.forEach(m=>m.remove());
+  mapMarkers=[];
+  const bounds=[];
+  list.forEach((p)=>{
+    const c=(Number.isFinite(p.lat)&&Number.isFinite(p.lng))?{lat:p.lat,lng:p.lng}:approximateCoords(p.location,p.name);
+    if(!c) return;
+    const icon=L.divIcon({
+      className:'',
+      html:`<div class="person-marker ${levelClass(p.level)}">${escapeHtml(initials(p.name))}</div>`,
+      iconSize:[34,34],iconAnchor:[17,17],popupAnchor:[0,-18]
+    });
+    const marker=L.marker([c.lat,c.lng],{icon}).addTo(peopleMap);
+    marker.bindPopup(`<div class="map-popup-name">${escapeHtml(p.name)}</div><div class="map-popup-meta">📍 ${escapeHtml(p.location)}<br>${escapeHtml(p.level)} · ${escapeHtml(p.method)} · ${Number(p.time)||0} mp<br>🕒 ${escapeHtml(p.availability||'Rugalmas')} · közös kockázás</div>`);
+    mapMarkers.push(marker); bounds.push([c.lat,c.lng]);
+  });
+  if(bounds.length===1) peopleMap.setView(bounds[0],12);
+  else if(bounds.length>1) peopleMap.fitBounds(bounds,{padding:[35,35],maxZoom:12});
+  setTimeout(()=>peopleMap.invalidateSize(),0);
+}
+
+function initials(name){return name.split(/\s+/).map(x=>x[0]).join('').slice(0,2).toUpperCase()}
+function availabilityClass(v){
+  if(v==='Most találkozna') return 'av-now';
+  if(v==='Ma ráér') return 'av-today';
+  if(v==='Ezen a héten') return 'av-week';
+  return 'av-flex';
+}
+function render(){
+  const loc=document.getElementById('fLocation').value.trim().toLowerCase();
+  const level=document.getElementById('fLevel').value;
+  const method=document.getElementById('fMethod').value;
+  const maxTime=Number(document.getElementById('fTime').value||0);
+  const availability=document.getElementById('fAvailability').value;
+  const meet=document.getElementById('fMeet').value;
+  const filtered=profiles.filter(p=>
+    (!loc || p.location.toLowerCase().includes(loc)) &&
+    (!level || p.level===level) &&
+    (!method || p.method===method) &&
+    (!maxTime || Number(p.time)<=maxTime) &&
+    (!availability || p.availability===availability) &&
+    (!meet || p.meet===meet)
+  );
+  document.getElementById('resultCount').textContent = `${filtered.length} találat`;
+  renderMap(filtered);
+  document.getElementById('cards').innerHTML = filtered.map((p,i)=>`
+    <article class="profile-card">
+      <div class="toprow">
+        <div style="display:flex;gap:12px"><div class="avatar">${initials(p.name)}</div><div><div class="name">${escapeHtml(p.name)}</div><div class="loc">📍 ${escapeHtml(p.location)}</div></div></div>
+        <div class="badge">${p.level}</div>
+      </div>
+      <div class="badges"><span class="badge">🧠 ${p.method}</span><span class="badge">🤝 ${p.meet}</span><span class="availability ${availabilityClass(p.availability||'Rugalmas')}">🕒 ${escapeHtml(p.availability||'Rugalmas')}</span></div>
+      <div class="statgrid">
+        <div class="stat"><b>${p.time} mp</b><span>3×3 átlag</span></div>
+        <div class="stat"><b>${p.method}</b><span>módszer</span></div>
+        <div class="stat"><b>${p.level}</b><span>szint</span></div>
+      </div>
+      <div class="bio">${escapeHtml(p.goal)}</div>
+      <div class="card-actions"><button class="btn-primary" onclick="alert('A teljes verzióban itt indulna a hobbitárs-felkérés közös kockázáshoz.')">Kockázzunk!</button><button class="btn-ghost" onclick="alert('A teljes verzióban itt nyílna meg a részletes profil.')">Profil</button></div>
+    </article>
+  `).join('') || `<div class="panel" style="padding:24px;grid-column:1/-1">Nincs találat ezekkel a szűrőkkel.</div>`;
+}
+function resetFilters(){['fLocation','fLevel','fMethod','fTime','fAvailability','fMeet'].forEach(id=>document.getElementById(id).value='');render()}
+function openJoin(){document.getElementById('joinModal').classList.add('open')}
+function closeJoin(){document.getElementById('joinModal').classList.remove('open');document.getElementById('notice').style.display='none'}
+function addProfile(){
+  const p={
+    name:document.getElementById('jName').value.trim()||'Névtelen',
+    location:document.getElementById('jLocation').value.trim()||'Nincs megadva',
+    level:document.getElementById('jLevel').value,
+    time:Number(document.getElementById('jTime').value||0),
+    method:document.getElementById('jMethod').value,
+    availability:document.getElementById('jAvailability').value,
+    meet:document.getElementById('jMeet').value,
+    goal:document.getElementById('jBio').value.trim()||'Kockatársat keresek közös gyakorláshoz.'
+  };
+  const saved=JSON.parse(localStorage.getItem('rubictali_profiles')||localStorage.getItem('kockatars_profiles')||'[]');saved.unshift(p);
+  localStorage.setItem('rubictali_profiles',JSON.stringify(saved));
+  profiles=[...initialProfiles,...saved];render();
+  document.getElementById('notice').style.display='block';
+}
+function escapeHtml(s){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
+render();
+</script>
+</body>
+</html>
